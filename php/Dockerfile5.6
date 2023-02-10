@@ -1,0 +1,27 @@
+FROM laradock/php-fpm:latest-5.6
+# laradock/
+# ARG CHANGE_SOURCE=false
+# RUN sed -i 's/deb.debian.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
+#     sed -i 's/security.debian.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list && \
+#     sed -i 's/security-cdn.debian.org/mirrors.tuna.tsinghua.edu.cn/' /etc/apt/sources.list
+# # 替换源 并安装常用库
+# # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tuna.tsinghua.edu.cn/g' /etc/apk/repositories
+#     # && apk add ${PHPIZE_DEPS}
+# #安装需要的插件
+# RUN docker-php-ext-install pdo_mysql \
+#     && apk add libmcrypt-dev\ 
+#     && pecl install mcrypt \
+#     && docker-php-ext-enable mcrypt
+
+# # Install Composer
+# ENV COMPOSER_HOME /root/composer
+# RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# ENV PATH $COMPOSER_HOME/vendor/bin:$PATH
+# # 修改源
+# RUN composer config -g repo.packagist composer https://mirrors.cloud.tencent.com/composer/
+
+# COPY ./usr/local/etc/php/php.ini /usr/local/etc/php
+# COPY ./usr/local/etc/php-fpm.d /usr/local/etc/php-fpm.d
+
+# 工作路径 
+WORKDIR /var/www

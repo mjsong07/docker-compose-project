@@ -1,0 +1,20 @@
+location /img {
+    alias   html/img;
+    index  index.html index.htm;
+    #默认为on，显示出文件的确切大小，单位是bytes 
+    #显示出文件的大概大小，单位是kB或者MB或者GB
+    autoindex on;
+    #默认为off，显示的文件时间为GMT时间。
+    autoindex_exact_size off;
+    #改为on后，显示的文件时间为文件的服务器时间
+    autoindex_localtime on;
+    #让浏览器不保存临时文件
+    add_header Cache-Control:public, max-age=31536000;
+    #跨域处理
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+    add_header Access-Control-Allow-Headers 'DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization';
+    if ($request_method = 'OPTIONS') {
+        return 204;
+    }
+}

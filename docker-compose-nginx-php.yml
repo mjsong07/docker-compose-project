@@ -1,0 +1,38 @@
+version: '4'
+services:
+# nginx ################################################
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes: # 前端静态资源
+      - ./dist/html:/usr/share/nginx/html
+      - ./dist/php:/var/www #这里是映射php的文件夹
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl/:/etc/nginx/ssl # 证书
+      - ./nginx/common/:/etc/nginx/common # 共用配置
+      - ./logs/nginx:/var/log/nginx 
+    ports:
+      - "8081:8080"
+      - "8082:8082"
+      - "8083:8083"
+      - "8086:8086"
+      - "48081:48081"
+    privileged: true
+    restart: always
+    command: nginx -g 'daemon off;'
+    links:
+      - php
+
+# php ################################################
+  php: # 如果要使用不同的php版本 请修改 5.6 -> 7.4 dockerfile和 volumes 都要修改
+    image: laradock/php-fpm:latest-5.6
+    container_name: php
+    volumes: # 前端静态资源
+      - ./dist/php:/var/www
+      # - ./php/php5.6.ini:/usr/local/etc/php/php.ini
+      # - ./php/php-fpm.d5.6:/usr/local/etc/php-fpm.d
+      # - ./logs/php-fpm:/var/log/php-fpm
+    ports:
+      - "9000:9000"
+    privileged: true

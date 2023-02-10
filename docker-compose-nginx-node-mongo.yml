@@ -1,0 +1,79 @@
+version: '4'
+services:
+# nginx ################################################
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes: # 前端静态资源
+      - ./dist/html:/usr/share/nginx/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl/:/etc/nginx/ssl # 证书
+      - ./nginx/common/:/etc/nginx/common # 共用配置
+      - ./logs/nginx:/var/log/nginx 
+    ports:
+      - "8081:8080"
+      - "8082:8082"
+      - "8083:8083"
+      - "8086:8086"
+      - "48081:48081"
+    privileged: true
+    restart: always
+    command: nginx -g 'daemon off;'
+    
+# node ################################################
+  node:
+    image: node:14-alpine
+    container_name: node
+    volumes: # 前端静态资源
+      - ./logs/pm2:/root/.pm2/logs
+    ports:
+      - "3000:3000"
+ 
+
+# mongo 端口2020 ################################################
+  mongo:
+    image: mongo:4.1.6 # 注意不能是最新版本 必须指定版本
+    container_name: mongo
+    ports:
+      - 2020:27017
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - ./data/mongo:/data/db
+      - ./data/mongodb_backup:/data/mongodb_backup
+      # - /data/mongo:/data/configdb
+    privileged: true
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - 2021:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/
+      ME_CONFIG_OPTIONS_EDITORTHEME: default
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_CONFIG_BASICAUTH_PASSWORD}
+      # ME_CONFIG_MONGODB_SERVER: 127.0.0.1
+    depends_on:
+      - mongo
+ 
+  # mongoclient:
+  #   image: mongoclient/mongoclient
+  #   container_name: mongoclient
+  #   environment:
+  #     - ROOT_URL=http://localhost
+  #     - MONGO_URL=mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/
+  #     - INSTALL_MONGO=true
+  #   volumes:
+  #     - ./data/mongoclient:/data/db
+  #   ports:
+  #     - "2022:3000"
+  #   depends_on:
+  #     - mongo

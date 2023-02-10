@@ -1,0 +1,11 @@
+version: '4'
+services:
+# docker ui界面portainer  ################################################
+  portainer:
+    image: lihaixin/portainer # 第一次启动会需要自己创建账号
+    container_name: portainer
+    restart: always
+    volumes: # 前端静态资源
+      - /var/run/docker.sock:/var/run/docker.sock #这里必须强制使用/var/run/docker.sock
+    ports:
+      - "1001:9000"

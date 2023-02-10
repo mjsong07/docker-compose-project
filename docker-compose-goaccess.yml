@@ -1,0 +1,11 @@
+# goaccess  ################################################
+  goaccess2: # 暂时只能一次生成 不能动态生成
+    image: allinurl/goaccess:latest
+    container_name: goaccess2
+    ports:
+    - "7890:7890"
+    volumes:
+      - ./goaccess/data:/srv/data
+      - ./logs/nginx:/srv/logs
+      - ./dist/html/report:/srv/report
+    privileged: true

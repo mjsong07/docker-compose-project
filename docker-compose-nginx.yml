@@ -1,0 +1,26 @@
+version: '4'
+networks:
+  front: {}
+  backend: {}
+# project-name: ylzs
+services:
+# nginx ################################################
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes: # 前端静态资源
+      - ./dist/html:/usr/share/nginx/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl/:/etc/nginx/ssl # 证书
+      - ./nginx/common/:/etc/nginx/common # 共用配置
+      - ./logs/nginx:/var/log/nginx 
+    ports:
+      - "8081:8080"
+      - "8082:8082"
+      - "8083:8083"
+      - "8086:8086"
+      - "48081:48081"
+    privileged: true
+    restart: always
+    command: nginx -g 'daemon off;'

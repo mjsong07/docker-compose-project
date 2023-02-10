@@ -1,0 +1,77 @@
+version: '4'
+services:
+# nginx ################################################
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    volumes: # 前端静态资源
+      - ./dist/html:/usr/share/nginx/html
+      - ./dist/php:/var/www #这里是映射php的文件夹
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl/:/etc/nginx/ssl # 证书
+      - ./nginx/common/:/etc/nginx/common # 共用配置
+      - ./logs/nginx:/var/log/nginx 
+    ports:
+      - "8081:8080"
+      - "8082:8082"
+      - "8083:8083"
+      - "8086:8086"
+      - "48081:48081"
+    privileged: true
+    restart: always
+    command: nginx -g 'daemon off;'
+    links:
+      - php
+
+# php ################################################
+  php: # 如果要使用不同的php版本 请修改 5.6 -> 7.4 dockerfile和 volumes 都要修改
+    image: laradock/php-fpm:latest-5.6
+    container_name: php
+    volumes: # 前端静态资源
+      - ./dist/php:/var/www
+      # - ./php/php5.6.ini:/usr/local/etc/php/php.ini
+      # - ./php/php-fpm.d5.6:/usr/local/etc/php-fpm.d
+      # - ./logs/php-fpm:/var/log/php-fpm
+    ports:
+      - "9000:9000"
+    privileged: true
+
+# mysql & phpmyadmin 2010 ################################################
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "2010:3306"
+    volumes:
+      - ./mysql/conf.d:/etc/mysql/conf.d # 启动读取的配置
+      - ./data/mysql:/var/lib/mysql #mysql数据库数据保存地方
+      - ./logs/mysql:/var/log/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    restart: always
+    command: "--character-set-server=utf8 --default-authentication-plugin=mysql_native_password"
+    privileged: true
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "2011:80"
+    environment:
+      PMA_HOST: mysql # 登录页面 服务器输入mysql，用户名root 密码 123456
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_ARBITRARY: 1 #连接的服务器个数
+    restart: unless-stopped
+    depends_on:
+      - mysql
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql # 登录页面 服务器输入mysql，用户名root 密码 123456
+    ports:
+      - 2012:8080

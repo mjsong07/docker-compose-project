@@ -1,0 +1,25 @@
+version: '4'
+services: 
+##docker 仓库 端口 5000  ################################################
+  registry:
+    image: registry:2 
+    container_name: registry
+    restart: always
+    volumes:
+      - ./data/registry:/tmp/registry
+    ports:
+      - "5000:5000"
+
+  registry-web:
+    image: hyper/docker-registry-web # 
+    container_name: docker-registry-web
+    restart: always
+    ports:
+      - "5001:8080"
+    environment:
+      REGISTRY_URL: http://registry:5000/v2
+      REGISTRY_NAME: localhost:5000
+    links:
+      - registry
+    depends_on:
+      - registry
