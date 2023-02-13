@@ -6,7 +6,7 @@ services:
     container_name: registry
     restart: always
     volumes:
-      - ./data/registry:/tmp/registry
+      - ./data/registry:/var/lib/registry
     ports:
       - "5000:5000"
 
